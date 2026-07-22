@@ -1,0 +1,5 @@
+{
+  "buildCommand": "cd ../.. && pnpm install --frozen-lockfile && pnpm --filter @workspace/contract-tool run build",
+  "outputDirectory": "../../artifacts/contract-tool/dist/public",
+  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+}

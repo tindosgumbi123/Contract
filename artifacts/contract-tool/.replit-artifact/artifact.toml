@@ -1,0 +1,27 @@
+kind = "web"
+previewPath = "/"
+title = "Dunwell Contract Generator"
+version = "1.0.0"
+id = "artifacts/contract-tool"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18689
+
+[services.development]
+run = "pnpm --filter @workspace/contract-tool run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/contract-tool", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/contract-tool/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18689"
+BASE_PATH = "/"

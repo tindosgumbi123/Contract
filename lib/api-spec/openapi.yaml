@@ -1,0 +1,325 @@
+openapi: 3.1.0
+info:
+  title: Api
+  version: 0.1.0
+  description: Dunwell Contract Generator API
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: sessions
+    description: Contract session operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /sessions:
+    get:
+      operationId: listSessions
+      tags: [sessions]
+      summary: List all contract sessions
+      responses:
+        "200":
+          description: List of sessions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Session"
+    post:
+      operationId: createSession
+      tags: [sessions]
+      summary: Create a new contract session
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionInput"
+      responses:
+        "201":
+          description: Session created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+
+  /sessions/{id}:
+    get:
+      operationId: getSession
+      tags: [sessions]
+      summary: Get a contract session by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Session found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteSession
+      tags: [sessions]
+      summary: Delete a contract session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Session deleted
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateSession
+      tags: [sessions]
+      summary: Update a contract session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SessionUpdate"
+      responses:
+        "200":
+          description: Session updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /sessions/{id}/signatures:
+    post:
+      operationId: saveSignature
+      tags: [sessions]
+      summary: Save a signature for a session
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignatureInput"
+      responses:
+        "200":
+          description: Signature saved
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Session"
+        "404":
+          description: Session not found
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    Session:
+      type: object
+      required:
+        - id
+        - shareToken
+        - contractType
+        - status
+        - createdAt
+        - updatedAt
+      properties:
+        id:
+          type: string
+        shareToken:
+          type: string
+        contractType:
+          type: string
+          enum: [employment_contract, formal_offer]
+        status:
+          type: string
+          enum: [draft, pending_signature, signed]
+        employeeName:
+          type: ["string", "null"]
+        employeeAddress:
+          type: ["string", "null"]
+        letterDate:
+          type: ["string", "null"]
+        position:
+          type: ["string", "null"]
+        startDate:
+          type: ["string", "null"]
+        annualSalary:
+          type: ["string", "null"]
+        monthlySalary:
+          type: ["string", "null"]
+        supervisor:
+          type: ["string", "null"]
+        employmentStatus:
+          type: ["string", "null"]
+        placeOfWork:
+          type: ["string", "null"]
+        employeeSignature:
+          type: ["string", "null"]
+        employeeSignedAt:
+          type: ["string", "null"]
+        witnessSignature:
+          type: ["string", "null"]
+        witnessName:
+          type: ["string", "null"]
+        witnessSignedAt:
+          type: ["string", "null"]
+        projectManagerSignature:
+          type: ["string", "null"]
+        projectManagerSignedAt:
+          type: ["string", "null"]
+        projectManagerName:
+          type: ["string", "null"]
+        directorSignature:
+          type: ["string", "null"]
+        directorSignedAt:
+          type: ["string", "null"]
+        companySignature:
+          type: ["string", "null"]
+        companySignedAt:
+          type: ["string", "null"]
+        createdAt:
+          type: string
+        updatedAt:
+          type: string
+
+    SessionInput:
+      type: object
+      required:
+        - contractType
+        - employeeName
+      properties:
+        contractType:
+          type: string
+          enum: [employment_contract, formal_offer]
+        employeeName:
+          type: string
+        employeeAddress:
+          type: string
+        letterDate:
+          type: string
+        position:
+          type: string
+        startDate:
+          type: string
+        annualSalary:
+          type: string
+        monthlySalary:
+          type: string
+        supervisor:
+          type: string
+        employmentStatus:
+          type: string
+        placeOfWork:
+          type: string
+
+    SessionUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [draft, pending_signature, signed]
+        employeeName:
+          type: string
+        employeeAddress:
+          type: string
+        letterDate:
+          type: string
+        position:
+          type: string
+        startDate:
+          type: string
+        annualSalary:
+          type: string
+        monthlySalary:
+          type: string
+        supervisor:
+          type: string
+        employmentStatus:
+          type: string
+        placeOfWork:
+          type: string
+
+    SignatureInput:
+      type: object
+      required:
+        - role
+        - signatureData
+        - signedAt
+      properties:
+        role:
+          type: string
+          enum: [employee, witness, project_manager, director, company]
+        signatureData:
+          type: string
+          description: Base64 encoded signature image
+        signerName:
+          type: string
+        signedAt:
+          type: string
